@@ -1,0 +1,36 @@
+{
+  "name": "shotinclean",
+  "version": "1.0.0",
+  "description": "A CleanShot-style screenshot & screen recording app for the browser",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/galliharmada/shotinclean.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/galliharmada/shotinclean/issues"
+  },
+  "homepage": "https://github.com/galliharmada/shotinclean#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21",
+    "vite-plugin-static-copy": "^2.3.2",
+    "vitest": "^2.1.9"
+  },
+  "dependencies": {
+    "@tesseract.js-data/eng": "^1.0.0",
+    "gifenc": "^1.0.3",
+    "tesseract.js": "^5.1.1"
+  },
+  "private": true,
+  "type": "module"
+}
