@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+# The studio is a single-page app at /#/app.

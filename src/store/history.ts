@@ -11,14 +11,22 @@ export interface CaptureItem {
   durationMs?: number;
 }
 
-const DB_NAME = 'shotinclean';
 const STORE = 'captures';
 
+let dbName = 'shotinclean';
 let dbPromise: Promise<IDBDatabase> | null = null;
+
+/** Each local profile gets its own capture database. */
+export function configureHistoryScope(scope: string | null): void {
+  const next = scope ? `shotinclean-${scope}` : 'shotinclean';
+  if (next === dbName) return;
+  dbName = next;
+  dbPromise = null;
+}
 
 function openDb(): Promise<IDBDatabase> {
   dbPromise ??= new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, 1);
+    const req = indexedDB.open(dbName, 1);
     req.onupgradeneeded = () => {
       req.result.createObjectStore(STORE, { keyPath: 'id' }).createIndex('createdAt', 'createdAt');
     };

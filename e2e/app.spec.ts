@@ -5,7 +5,32 @@ const shot = (page: Page, name: string) => page.screenshot({ path: `docs/screens
 const meta = (page: Page) => page.locator('.history-meta span').first();
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  // The studio is private now. Seed the local marker that Clerk's listener
+  // writes after a real sign-in so the capture tests can run without a browser
+  // login.
+  await page.addInitScript(() => {
+    const id = 'user_e2e_studio';
+    const now = Date.now();
+    localStorage.setItem(
+      'shotinclean.auth.v1',
+      JSON.stringify({
+        version: 1,
+        activeUserId: id,
+        users: {
+          [id]: {
+            id,
+            fullName: 'Studio User',
+            firstName: 'Studio',
+            provider: 'clerk',
+            createdAt: now,
+            savedAt: now,
+            lastSeenAt: now,
+          },
+        },
+      }),
+    );
+  });
+  await page.goto('/#/app');
 });
 
 test('screenshot → Quick Access → annotate with background → history', async ({ page }) => {

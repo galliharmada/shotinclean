@@ -14,6 +14,9 @@ const tesseractAssets = viteStaticCopy({
 
 export default defineConfig({
   plugins: [tesseractAssets],
+  // Marketing shots are written here by scripts/marketing-shots.mjs while the
+  // dev server runs; do not treat those writes as an app change.
+  server: { watch: { ignored: ['**/src/landing/assets/**'] } },
   build: { target: 'es2022' },
   test: { environment: 'node', include: ['tests/**/*.test.ts'] },
 } as never);
