@@ -11,7 +11,8 @@
     "test:e2e": "playwright test",
     "shots": "node scripts/marketing-shots.mjs",
     "shots:optimize": "python3 scripts/optimize-assets.py",
-    "og": "node scripts/og-image.mjs"
+    "og": "node scripts/og-image.mjs",
+    "deploy": "npm run build && wrangler pages deploy"
   },
   "repository": {
     "type": "git",
@@ -27,7 +28,8 @@
     "typescript": "^5.9.3",
     "vite": "^5.4.21",
     "vite-plugin-static-copy": "^2.3.2",
-    "vitest": "^2.1.9"
+    "vitest": "^2.1.9",
+    "wrangler": "^4.151.3"
   },
   "dependencies": {
     "@clerk/clerk-js": "^6.40.0",
