@@ -127,6 +127,30 @@ npm run build
 If you later move the studio to `/app`, add the host's SPA fallback and update the
 `#/app` links in `src/landing/landing.ts`, `src/studio.ts` and `src/main.ts`.
 
+## Agent skill & CLI
+
+ShotInClean ships a headless CLI and an [Agent Skill](skills/shotinclean/SKILL.md), so coding
+agents (Claude Code, Cursor, Copilot, …) can make PR screenshots, docs images and GIFs on their own.
+Annotations target **CSS selectors**, so an agent never has to guess pixel positions.
+
+```bash
+npm run build
+node cli/shotinclean.mjs capture http://localhost:5173 -o shot.png \
+  --selector "#api-card" --background gradient:2 \
+  --spec '{"annotations":[{"type":"pixelate","rect":{"selector":"#secret-key"}},
+                          {"type":"arrow","to":{"selector":"#rotate","anchor":"right"}}]}'
+```
+
+| `capture` with selector annotations + background | `record` → GIF |
+| --- | --- |
+| ![Agent capture](docs/screenshots/skill-capture.png) | ![Agent GIF](docs/screenshots/skill-flow.gif) |
+
+Commands: `capture`, `annotate`, `record`, `gif`, `ocr`. Each prints one JSON line. The CLI
+drives `headless.html` in Chromium through Playwright, so it renders with exactly the same
+code as the editor. The skill is also linked at `.claude/skills/shotinclean`, so Claude Code
+picks it up automatically inside this repo. Spec reference:
+[skills/shotinclean/reference/spec.md](skills/shotinclean/reference/spec.md).
+
 ## Getting started
 
 ```bash
@@ -158,8 +182,9 @@ Document PiP and `DownloadURL` drag-out.
 | `npm run dev` | Vite dev server |
 | `npm run build` | Typecheck + production build to `dist/` |
 | `npm run preview` | Serve the production build |
-| `npm test` | Unit tests (Vitest): geometry, background layout, MIME selection |
-| `npm run test:e2e` | Playwright end-to-end tests. Set `CHROMIUM_PATH` to use a preinstalled Chrome |
+| `npm test` | Unit tests (Vitest): geometry, background layout, MIME selection, agent spec validation |
+| `npm run test:e2e` | Playwright end-to-end tests for the studio, landing page and CLI. The CLI tests need `npm run build` first. Set `CHROMIUM_PATH` to use a preinstalled Chrome |
+| `npm run test:cli` | Only the agent CLI tests |
 | `npm run shots` | Regenerate the marketing screenshots from the real studio (requires Vite on port 5173) |
 | `npm run shots:optimize` | Convert generated PNGs to WebP (requires Python + Pillow) |
 | `npm run og` | Regenerate `public/og.png` from the live landing page |
@@ -202,12 +227,15 @@ src/
   capture/       display.ts (getDisplayMedia), areaSelect.ts, recorder.ts
   editor/        editor.ts (UI + state), shapes.ts, background.ts (pure layout)
   video/         videoEditor.ts (trim UI), media.ts (GIF encode, trim, WebM duration fix)
+  headless/      engine.ts (window.shotinclean API for the CLI), spec.ts (agent JSON spec → shapes)
   features/      ocr.ts, pin.ts
   ui/            quickAccess.ts, hud.ts (recording HUD, countdown), toast.ts
   store/         history.ts (IndexedDB)
   lib/           dom.ts, geometry.ts, mime.ts, ticker.ts
 e2e/             Studio and landing Playwright tests
 scripts/         Screenshot generation, OG image, WebP optimizer
+cli/             shotinclean.mjs (agent-facing CLI)
+skills/          shotinclean/SKILL.md (Agent Skill) + reference/spec.md
 ```
 
 ## Browser limitations
@@ -219,4 +247,4 @@ for how an Electron or Tauri wrapper would close those gaps.
 
 ## License
 
-ISC.
+[MIT](LICENSE) © 2026 Gallih Armada

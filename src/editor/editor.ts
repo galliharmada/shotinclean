@@ -7,16 +7,14 @@ import {
   type BackgroundLayout,
   DEFAULT_BACKGROUND,
   GRADIENTS,
-  clipImage,
   computeLayout,
-  paintBackground,
 } from './background';
+import { composeImage } from './compose';
 import {
   type CounterShape,
   type Shape,
   type Tool,
   boundsOf,
-  drawShape,
   fontSize,
   hitTest,
   isDegenerate,
@@ -558,17 +556,9 @@ class Editor {
   private paint(ctx: CanvasRenderingContext2D, withChrome: boolean): void {
     const { base, shapes } = this.doc;
     const layout = this.layout;
+    const visible = withChrome && this.draft ? [...shapes, this.draft] : shapes;
 
-    ctx.clearRect(0, 0, layout.width, layout.height);
-    paintBackground(ctx, layout, this.bg);
-
-    ctx.save();
-    clipImage(ctx, layout, this.bg);
-    ctx.translate(layout.image.x, layout.image.y);
-    ctx.drawImage(base, 0, 0);
-    for (const shape of shapes) drawShape(ctx, shape, base);
-    if (withChrome && this.draft) drawShape(ctx, this.draft, base);
-    ctx.restore();
+    composeImage(ctx, base, visible, this.bg, layout);
 
     if (!withChrome) return;
 

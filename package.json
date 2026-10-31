@@ -12,13 +12,15 @@
     "shots": "node scripts/marketing-shots.mjs",
     "shots:optimize": "python3 scripts/optimize-assets.py",
     "og": "node scripts/og-image.mjs",
-    "deploy": "npm run build && wrangler pages deploy"
+    "deploy": "npm run build && wrangler pages deploy",
+    "prepare": "vite build",
+    "test:cli": "playwright test e2e/cli.spec.ts"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/galliharmada/shotinclean.git"
   },
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/galliharmada/shotinclean/issues"
   },
@@ -40,8 +42,19 @@
     "@phosphor-icons/core": "^2.1.1",
     "@tesseract.js-data/eng": "^1.0.0",
     "gifenc": "^1.0.3",
+    "playwright": "^1.64.1",
     "tesseract.js": "^5.1.1"
   },
   "private": true,
-  "type": "module"
+  "type": "module",
+  "bin": {
+    "shotinclean": "cli/shotinclean.mjs"
+  },
+  "files": [
+    "cli",
+    "dist",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ]
 }
