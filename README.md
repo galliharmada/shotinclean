@@ -23,6 +23,30 @@ runs in the browser. It's written in strict TypeScript with Vite and no UI frame
 The evidence behind the feature set, and the mapping from CleanShot's native design
 to browser APIs, is in **[docs/RESEARCH.md](docs/RESEARCH.md)**.
 
+## Agent skill & CLI
+
+ShotInClean ships a headless CLI and an [Agent Skill](skills/shotinclean/SKILL.md), so coding
+agents (Claude Code, Cursor, Copilot, …) can make PR screenshots, docs images and GIFs on their own.
+Annotations target **CSS selectors**, so an agent never has to guess pixel positions.
+
+```bash
+npm run build
+node cli/shotinclean.mjs capture http://localhost:5173 -o shot.png \
+  --selector "#api-card" --background gradient:2 \
+  --spec '{"annotations":[{"type":"pixelate","rect":{"selector":"#secret-key"}},
+                          {"type":"arrow","to":{"selector":"#rotate","anchor":"right"}}]}'
+```
+
+| `capture` with selector annotations + background | `record` → GIF |
+| --- | --- |
+| ![Agent capture](docs/screenshots/skill-capture.png) | ![Agent GIF](docs/screenshots/skill-flow.gif) |
+
+Commands: `capture`, `annotate`, `record`, `gif`, `ocr`. Each prints one JSON line. The CLI
+drives `headless.html` in Chromium through Playwright, so it renders with exactly the same
+code as the editor. The skill is also linked at `.claude/skills/shotinclean`, so Claude Code
+picks it up automatically inside this repo. Spec reference:
+[skills/shotinclean/reference/spec.md](skills/shotinclean/reference/spec.md).
+
 ## Getting started
 
 ```bash
@@ -53,8 +77,8 @@ and `DownloadURL` drag-out.
 | --- | --- |
 | `npm run dev` | Vite dev server |
 | `npm run build` | Typecheck + production build to `dist/` |
-| `npm test` | Unit tests (Vitest): geometry, background layout, MIME selection |
-| `npm run test:e2e` | Playwright end-to-end tests in Chromium with a synthetic screen source and a fake webcam. Set `CHROMIUM_PATH` to use a preinstalled browser |
+| `npm test` | Unit tests (Vitest): geometry, background layout, MIME selection, agent spec validation |
+| `npm run test:e2e` | Playwright end-to-end tests for the app (synthetic screen, fake webcam) and the CLI. Needs `npm run build` first. Set `CHROMIUM_PATH` to use a preinstalled browser |
 
 ## Project layout
 
@@ -63,10 +87,13 @@ src/
   capture/   display.ts (getDisplayMedia), areaSelect.ts, recorder.ts
   editor/    editor.ts (UI + state), shapes.ts (model + drawing), background.ts (pure layout)
   video/     videoEditor.ts (trim UI), media.ts (GIF encode, trim, WebM duration fix)
+  headless/  engine.ts (window.shotinclean API for the CLI), spec.ts (agent JSON spec → shapes)
   features/  ocr.ts, pin.ts
   ui/        quickAccess.ts, hud.ts (recording HUD, countdown), toast.ts
   store/     history.ts (IndexedDB)
   lib/       dom.ts, geometry.ts, mime.ts, ticker.ts
+cli/         shotinclean.mjs (agent-facing CLI)
+skills/      shotinclean/SKILL.md (Agent Skill) + reference/spec.md
 ```
 
 ## Browser limitations

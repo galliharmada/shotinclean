@@ -117,3 +117,29 @@ export async function trimVideo(
   await done;
   return new Blob(chunks, { type: recorder.mimeType });
 }
+
+export interface GifFrame {
+  image: CanvasImageSource & { width: number; height: number };
+  delayMs: number;
+}
+
+/** Encodes pre-captured frames with per-frame delays (used for CLI screencasts). */
+export function framesToGif(frames: GifFrame[], maxWidth: number): Blob {
+  if (frames.length === 0) throw new Error('No frames to encode');
+  const first = frames[0].image;
+  const scale = Math.min(1, maxWidth / first.width);
+  const canvas = createCanvas(first.width * scale, first.height * scale);
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) throw new Error('Canvas 2D context is unavailable');
+  ctx.imageSmoothingQuality = 'high';
+
+  const gif = GIFEncoder();
+  for (const frame of frames) {
+    ctx.drawImage(frame.image, 0, 0, canvas.width, canvas.height);
+    const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const palette = quantize(data, 256);
+    gif.writeFrame(applyPalette(data, palette), canvas.width, canvas.height, { palette, delay: frame.delayMs });
+  }
+  gif.finish();
+  return new Blob([gif.bytes()], { type: 'image/gif' });
+}

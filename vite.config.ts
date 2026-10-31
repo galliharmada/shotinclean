@@ -14,6 +14,12 @@ const tesseractAssets = viteStaticCopy({
 
 export default defineConfig({
   plugins: [tesseractAssets],
-  build: { target: 'es2022' },
+  build: {
+    target: 'es2022',
+    rollupOptions: {
+      // headless.html is the engine page the CLI drives (see cli/shotinclean.mjs).
+      input: { app: 'index.html', engine: 'headless.html' },
+    },
+  },
   test: { environment: 'node', include: ['tests/**/*.test.ts'] },
 } as never);
